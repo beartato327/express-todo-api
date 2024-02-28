@@ -1,23 +1,14 @@
-let dotenv = require('dotenv').config()
+require('dotenv').config()
+const mongoose = require('mongoose')
 
-const Pool = require('pg').Pool
-const pool = new Pool({
-    user: dotenv.parsed.USER,
-    host: dotenv.parsed.HOST,
-    database: dotenv.parsed.DATABASE,
-    password: dotenv.parsed.PASSWORD,
-    port: 5432
+const mongoString = process.env.DB_URL
+mongoose.connect(mongoString)
+const database = mongoose.connection
+
+database.on('error', (error: any) => {
+    console.log(error)
 })
 
-const getUsers = (req, res) => {
-    pool.query('SELECT * FROM users ORDER BY id ASC', (error, results) => {
-        if(error){
-            throw error
-        }
-        res.status(200).json(results.rows) 
-    })
-  }
-
-  module.exports = {
-    getUsers
-  }
+database.once('connected', () => {
+    console.log('Database Connected');
+})
